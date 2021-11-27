@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-export KERNEL_VERSION=5.4
+export KERNEL_VERSION=5.13
 export BUSYBOX_VERSION=1.32.0
 
 #
@@ -46,9 +46,11 @@ echo "CONFIG_DEBUG_INFO_REDUCED=n" >> linux-$KERNEL_VERSION/.config
 echo "CONFIG_DEBUG_INFO_SPLIT=n" >> linux-$KERNEL_VERSION/.config
 echo "CONFIG_DEBUG_FS=y" >> linux-$KERNEL_VERSION/.config
 echo "CONFIG_DEBUG_INFO_DWARF4=y" >> linux-$KERNEL_VERSION/.config
-echo "CONFIG_DEBUG_INFO_BTF=y" >> linux-$KERNEL_VERSION/.config
+echo "CONFIG_KASAN=y" >> linux-$KERNEL_VERSION/.config
+echo "CONFIG_KASAN=y" >> linux-$KERNEL_VERSION/.config
+echo "CONFIG_KASAN_INLINE=y" >> linux-$KERNEL_VERSION/.config
 echo "CONFIG_FRAME_POINTER=y" >> linux-$KERNEL_VERSION/.config
-make -C linux-$KERNEL_VERSION -j16 bzImage
+make -C linux-$KERNEL_VERSION -j64 bzImage
 
 #
 # Busybox
@@ -73,13 +75,3 @@ cd fs
 mkdir -p bin sbin etc proc sys usr/bin usr/sbin root home/ctf
 cd ..
 cp -a busybox-$BUSYBOX_VERSION/_install/* fs
-
-#
-# modules
-#
-
-echo "[+] Building modules..."
-cd src
-make
-cd ..
-cp src/*.ko fs/
